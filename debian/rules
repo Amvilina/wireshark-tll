@@ -1,0 +1,16 @@
+#!/usr/bin/make -f
+
+DEBVERS := $(shell dpkg-parsechangelog | sed -n -e 's/^Version: //p')
+VERSION := $(shell echo '$(DEBVERS)' | sed -e 's/^[[:digit:]]*://' -e 's/[~-].*//')
+MIDVERS := $(shell echo $(DEBVERS) | sed 's/-g[0-9a-f]\+$$//')
+
+%:
+	dh $@ --buildsystem cmake --parallel
+
+override_dh_gencontrol:
+	dh_gencontrol
+
+override_dh_auto_configure:
+	dh_auto_configure -S cmake -- \
+		-DPLUGIN_VERSION=$(VERSION) -DPLUGIN_VERSION_FULL=$(MIDVERS) \
+
